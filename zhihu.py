@@ -3,10 +3,10 @@
 
 """Zhihu Session
 [Info]
-    Simulate Zhihu Login 
+    Simulate Zhihu Login [Ref: https://github.com/zkqiang/Zhihu-Login]
 """
-__author__ = 'qingyu'
-__github__ = 'https://github.com/zkqiang/Zhihu-Login'
+__author__ = 'qingyu-wang'
+__github__ = 'https://github.com/qingyu-wang/zhihu'
 
 import base64
 import hashlib
