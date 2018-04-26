@@ -9,6 +9,7 @@ __author__ = 'qingyu-wang'
 __github__ = 'https://github.com/qingyu-wang/zhihu'
 
 import base64
+import getpass
 import hashlib
 import hmac
 import io
@@ -16,6 +17,7 @@ import json
 import os
 import pickle
 import time
+import logging
 
 import matplotlib.pyplot as plt
 import requests
@@ -31,19 +33,50 @@ class BasicSession(object):
         save_cookies: save cookies to a pickle file
         load_cookies: load cookies from a pickle file
     """
-    def __init__(self):
+    def __init__(self, name, cookiefile, debug):
+        self.name = name
+        self.cookiefile = cookiefile
+        self.debug = debug
         self.user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) ' + \
                           'AppleWebKit/537.36 (KHTML, like Gecko) ' + \
                           'Chrome/65.0.3325.181 Safari/537.36'
         self.session = requests.session()
+        self.logger = self.init_logger()
+
+    def init_logger(self):
+        """Initialize Logger
+        [Info]
+            output type: standard error
+            message level: DEBUG < INFO < WARNING < ERROR
+        """
+        format_log = '[%(name)s] [%(asctime)s] [%(levelname)s] %(message)s'
+        format_date = '%Y-%m-%d %H:%M:%S'
+
+        logger = logging.getLogger(self.name)
+        handler = logging.StreamHandler()  # sys.stdout
+        formatter = logging.Formatter(fmt=format_log, datefmt=format_date)
+
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+        if self.debug:
+            logger.setLevel(logging.DEBUG)
+        else:
+            logger.setLevel(logging.INFO)
+
+        return logger
 
     def save_cookies(self, cookiefile):
         """Save Cookies
         [Info]
             save cookies to a pickle file
         """
+        cookiedir = os.path.dirname(cookiefile)
+        if not os.path.isdir(cookiedir):
+            os.makedirs(cookiedir)
         cookies = requests.utils.dict_from_cookiejar(self.session.cookies)
         pickle.dump(cookies, open(cookiefile, 'wb'))
+        self.logger.info('保存 Cookies [{}]'.format(cookiefile))
         return
 
     def load_cookies(self, cookiefile):
@@ -53,6 +86,7 @@ class BasicSession(object):
         """
         cookies = pickle.load(open(cookiefile, 'rb'))
         self.session.cookies = requests.utils.cookiejar_from_dict(cookies)
+        self.logger.info('读取 Cookies [{}]'.format(cookiefile))
         return
 
 
@@ -64,9 +98,13 @@ class ZhihuSession(BasicSession):
         check_login: check login status
         login: make a login request
     """
-    def __init__(self):
-        super(ZhihuSession, self).__init__()
-        self.cookiefile = './zhihu_cookies.pkl'
+
+    def __init__(self, name=None, cookiefile=None, debug=False):
+        if name is None:
+            name = 'Zhihu Session'
+        if cookiefile is None:
+            cookiefile = './zhihu_cookies.pkl'
+        super(ZhihuSession, self).__init__(name, cookiefile, debug)
 
     def check_login(self):
         """Check login
@@ -87,8 +125,10 @@ class ZhihuSession(BasicSession):
         resp = self.session.get(url=url, headers=headers, allow_redirects=False)
 
         if resp.status_code == 302:
+            self.logger.info('已登录')
             status = True
         else:
+            self.logger.info('未登录')
             status = False
 
         return status
@@ -119,10 +159,7 @@ class ZhihuSession(BasicSession):
                     'Host': 'www.zhihu.com',
                     'User-Agent': self.user_agent
                 }
-                resp = self.session.get(url=url, headers=headers)
-
-                if resp.status_code != 200:
-                    raise Exception('http status code is {} [!=200]'.format(resp.status_code))
+                self.session.get(url=url, headers=headers)
 
             xsrf_token = self.session.cookies['_xsrf']
 
@@ -158,7 +195,7 @@ class ZhihuSession(BasicSession):
                     img = Image.open(io.BytesIO(base64.b64decode(meta['img_base64'])))
 
                     if lang == 'cn':
-                        print '[INFO] 点击所有倒立的汉字，按 [回车] 提交'
+                        print '[INPUT] 点击所有倒立的汉字，按 [回车] 提交'
                         plt.imshow(img)
                         points = plt.ginput(7)
                         captcha = {
@@ -171,7 +208,7 @@ class ZhihuSession(BasicSession):
                     else:
                         plt.imshow(img)
                         plt.show(block=False)
-                        captcha = raw_input('[INFO] 请输入图片里的验证码，按 [回车] 提交：')
+                        captcha = raw_input('[INPUT] 请输入图片里的验证码，按 [回车] 提交：')
                         payload = {'input_text': captcha}
                         plt.close()
 
@@ -179,10 +216,10 @@ class ZhihuSession(BasicSession):
                     resp = self.session.post(url=url, data=payload, headers=headers)
                     meta = json.loads(resp.content)
                     if 'success' in meta:
-                        print '[INFO] 验证码正确'
+                        self.logger.info('验证码正确')
                         break
                     else:
-                        print '[ERROR] 验证码错误，请重试'
+                        self.logger.error('验证码错误，请重试')
 
             else:
                 captcha = ''
@@ -243,7 +280,7 @@ class ZhihuSession(BasicSession):
 
             if 'error' in resp.content:
                 meta = json.loads(resp.content)
-                print '[ERROR] {}'.format(meta['error']['message'].encode('utf-8'))
+                self.logger.error(meta['error']['message'].encode('utf-8'))
                 status = False
             else:
                 status = True
@@ -259,8 +296,8 @@ class ZhihuSession(BasicSession):
 
         else:
             while True:
-                username = '+86' + raw_input('\n[INPUT] 请输入用户名(手机号): ')
-                password = raw_input('[INPUT] 请输入密码: ')
+                username = '+86' + raw_input('[INPUT] 请输入用户名(手机号): ')
+                password = getpass.getpass('[INPUT] 请输入密码: ')
 
                 lang = 'cn'
                 timestamp = str(int(time.time()*1000))
@@ -281,24 +318,32 @@ class ZhihuSession(BasicSession):
                 status = _login(params=login_params)
 
                 if status:
+                    self.logger.info('登录成功')
                     break
+                else:
+                    self.logger.error('登录失败，请重试')
 
-        self.save_cookies(self.cookiefile)
+            self.save_cookies(self.cookiefile)
 
         return status
 
 
 def main():
+    """Main
+    [Info]
+        a simple example
     """
-    main
-    """
-    account = ZhihuSession()
-    login_status = account.login(load_cookies=True)
+    import argparse
 
-    if login_status:
-        print '[INFO] 登录成功'
-    else:
-        print '[INFO] 登录失败'
+    parser = argparse.ArgumentParser(description='Zhihu Session')
+    parser.add_argument('--name', type=str, default='Zhihu Session', metavar='session_name', help='session name')
+    parser.add_argument('--cookiefile', type=str, default='./zhihu_cookies.pkl', metavar='cookies_path', help='cookie file')
+    parser.add_argument('--debug', action='store_true', help='open debug mode')
+
+    args = parser.parse_args()
+
+    account = ZhihuSession(name=args.name, cookiefile=args.cookiefile, debug=args.debug)
+    account.login()
 
     return
 
