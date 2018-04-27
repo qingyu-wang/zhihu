@@ -1,11 +1,10 @@
-![zhihu_login_slogan](./assets/zhihu_login_slogan.jpg | width=250)
-
+<img src="./assets/zhihu_login_slogan.jpg" alt="zhihu_login_slogan" height="250">
 
 # Python 知乎登录脚本
 
 ## 说明
 
-> 项目来源 [Zhihu-Login](https://github.com/zkqiang/Zhihu-Login | width=150)
+> 项目来源 [Zhihu-Login](https://github.com/zkqiang/Zhihu-Login)
 > 根据原作者的说明，学习理解并整理登录请求的解析思路
 
 
@@ -47,7 +46,7 @@ python zhihu.py [--name session_name] [--cookiefile cookies_path] [--debug]
 
 Chrome - Developer Tools [Command + Option + I]<br/>
 
-![developer_tool_panel](./assets/developer_tool_panel.jpg)
+<img src="./assets/developer_tool_panel.jpg" alt="developer_tool_panel" height="150">
 
 > 勾选 "Preserve log" 防止跳转丢失信息
 
