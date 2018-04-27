@@ -11,18 +11,21 @@
 
 ## 运行环境
 
+**要求**
 - python=2.7.14
  - requests==2.18.4 [网页请求]
  - Pillow==5.1.0 [读取验证码]
  - matplotlib==2.2.2 [处理验证码]
 
+**安装**
 ```shell
 pip install -r requirements.txt 
 ```
 
 ## 调用说明
 
-```python
+**运行**
+```shell
 python zhihu.py [--name session_name] [--cookiefile cookies_path] [--debug]
 ```
 
