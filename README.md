@@ -11,35 +11,41 @@
 
 ## 运行环境
 
-**要求**
+**要求**<br/>
+
 - python=2.7.14
  - requests==2.18.4 [网页请求]
  - Pillow==5.1.0 [读取验证码]
  - matplotlib==2.2.2 [处理验证码]
 
-**安装**
+**安装**<br/>
+
 ```shell
 pip install -r requirements.txt 
 ```
 
 ## 调用说明
 
-**运行**
+**运行**<br/>
+
 ```shell
 python zhihu.py [--name session_name] [--cookiefile cookies_path] [--debug]
 ```
 
-**参数**
-`--name`: 会话名称，用于日志记录
-`--cookiefile`: Cookies文件，用于储存和读取
+**参数**<br/>
+`--name`: 会话名称，用于日志记录<br/>
+`--cookiefile`: Cookies文件，用于储存和读取<br/>
 `--debug`: 调用Debug模式
 
+<br/>
+<br/>
+<br/>
 
 # 解析思路
 
 ## 工具
 
-Chrome - Developer Tools [Command + Option + I]
+Chrome - Developer Tools [Command + Option + I]<br/>
 
 ![developer_tool_panel](./assets/developer_tool_panel.jpg)
 
