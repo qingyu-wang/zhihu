@@ -1,11 +1,11 @@
-![zhihu_login_slogan](./assets/zhihu_login_slogan.jpg)
+![zhihu_login_slogan](./assets/zhihu_login_slogan.jpg | width=250)
 
 
 # Python 知乎登录脚本
 
 ## 说明
 
-> 项目来源 [Zhihu-Login](https://github.com/zkqiang/Zhihu-Login)
+> 项目来源 [Zhihu-Login](https://github.com/zkqiang/Zhihu-Login | width=150)
 > 根据原作者的说明，学习理解并整理登录请求的解析思路
 
 
