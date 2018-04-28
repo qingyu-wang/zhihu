@@ -19,6 +19,8 @@ import pickle
 import time
 import logging
 
+import matplotlib
+matplotlib.use('QT5Agg')  # set matplotlib backend
 import matplotlib.pyplot as plt
 import requests
 
@@ -33,8 +35,7 @@ class BasicSession(object):
         save_cookies: save cookies to a pickle file
         load_cookies: load cookies from a pickle file
     """
-    def __init__(self, name, cookiefile, debug):
-        self.name = name
+    def __init__(self, cookiefile, debug):
         self.cookiefile = cookiefile
         self.debug = debug
         self.user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) ' + \
@@ -52,7 +53,7 @@ class BasicSession(object):
         format_log = '[%(name)s] [%(asctime)s] [%(levelname)s] %(message)s'
         format_date = '%Y-%m-%d %H:%M:%S'
 
-        logger = logging.getLogger(self.name)
+        logger = logging.getLogger(__file__)
         handler = logging.StreamHandler()  # sys.stdout
         formatter = logging.Formatter(fmt=format_log, datefmt=format_date)
 
@@ -99,12 +100,15 @@ class ZhihuSession(BasicSession):
         login: make a login request
     """
 
-    def __init__(self, name=None, cookiefile=None, debug=False):
-        if name is None:
-            name = 'Zhihu Session'
+    def __init__(self, lang='en', cookiefile=None, debug=False):
+        self.file = os.path.abspath(__file__)
+        self.root = os.path.dirname(os.path.dirname(self.file))
+        self.lang = lang
+
         if cookiefile is None:
-            cookiefile = './zhihu_cookies.pkl'
-        super(ZhihuSession, self).__init__(name, cookiefile, debug)
+            cookiefile = '{}/log/zhihu_cookies.pkl'.format(self.root)
+
+        super(ZhihuSession, self).__init__(cookiefile, debug)
 
     def check_login(self):
         """Check login
@@ -203,14 +207,14 @@ class ZhihuSession(BasicSession):
                             'input_points': [[point[0]/2, point[1]/2] for point in points]
                         }
                         payload = {'input_text': json.dumps(captcha)}
-                        plt.close()
+                        plt.close('all')
 
                     else:
                         plt.imshow(img)
                         plt.show(block=False)
                         captcha = raw_input('[INPUT] 请输入图片里的验证码，按 [回车] 提交：')
                         payload = {'input_text': captcha}
-                        plt.close()
+                        plt.close('all')
 
                     # check captch first
                     resp = self.session.post(url=url, data=payload, headers=headers)
@@ -299,16 +303,15 @@ class ZhihuSession(BasicSession):
                 username = '+86' + raw_input('[INPUT] 请输入用户名(手机号): ')
                 password = getpass.getpass('[INPUT] 请输入密码: ')
 
-                lang = 'cn'
                 timestamp = str(int(time.time()*1000))
 
                 xsrf_token = _fetch_xsrf_token()
-                captcha = _fetch_captcha(lang)
+                captcha = _fetch_captcha(self.lang)
                 signature = _build_signature(timestamp)
 
                 login_params = {
                     'username': username,
-                    'lang': lang,
+                    'lang': self.lang,
                     'timestamp': timestamp,
                     'password': password,
                     'xsrf_token': xsrf_token,
@@ -336,13 +339,13 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description='Zhihu Session')
-    parser.add_argument('--name', type=str, default='Zhihu Session', metavar='session_name', help='session name')
-    parser.add_argument('--cookiefile', type=str, default='./zhihu_cookies.pkl', metavar='cookies_path', help='cookie file')
+    parser.add_argument('--lang', type=str, default='en', metavar='language', help='language')
+    parser.add_argument('--cookiefile', type=str, default=None, metavar='cookies_path', help='cookie file')
     parser.add_argument('--debug', action='store_true', help='open debug mode')
 
     args = parser.parse_args()
 
-    account = ZhihuSession(name=args.name, cookiefile=args.cookiefile, debug=args.debug)
+    account = ZhihuSession(lang=args.lang, cookiefile=args.cookiefile, debug=args.debug)
     account.login()
 
     return
