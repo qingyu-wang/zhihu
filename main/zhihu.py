@@ -341,7 +341,6 @@ def main():
     """
     import argparse
 
-
     parser = argparse.ArgumentParser(description='Zhihu Session')
     parser.add_argument('--lang', type=str, default='en', metavar='language', help='language')
     parser.add_argument('--cookie_path', type=str, default=COOKIE_PATH, metavar='cookie_path', help='cookie path')
