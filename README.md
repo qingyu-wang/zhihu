@@ -59,7 +59,7 @@ Chrome - Developer Tools [Command + Option + I]<br/>
 ## 基本信息
 
 <div align="center">
-    <img src="./docs/xhr_login.jpg" alt="xhr_login" height="100">
+    <img src="./docs/xhr_login.jpg" alt="xhr_login" height="400">
 </div>
 
 > 勾选 "XHR (XMLHttpRequest)" 查看请求相关的信息
@@ -72,7 +72,7 @@ Chrome - Developer Tools [Command + Option + I]<br/>
 
 
 <div align="center">
-    <img src="./docs/xhr_login_headers.jpg" alt="xhr_login_headers" height="100">
+    <img src="./docs/xhr_login_headers.jpg" alt="xhr_login_headers" height="400">
 </div>
 
 在 Headers -> Request Header 的项目里可以看到 `POST` 需要提供的 `headers`
@@ -83,7 +83,7 @@ Chrome - Developer Tools [Command + Option + I]<br/>
 
 
 <div align="center">
-    <img src="./docs/xhr_login_payload.jpg" alt="xhr_login_payload" height="100">
+    <img src="./docs/xhr_login_payload.jpg" alt="xhr_login_payload" height="800">
 </div>
 
 在 Headers -> Request Header 的项目里可以看到 `POST` 需要提供的 `payload`
@@ -102,11 +102,11 @@ Chrome - Developer Tools [Command + Option + I]<br/>
 ## 签名
 
 <div align="center">
-    <img src="./docs/source_signature_01.jpg" alt="source_signature_01" height="100">
+    <img src="./docs/source_signature_01.jpg" alt="source_signature_01" height="400">
 </div>
 
 <div align="center">
-    <img src="./docs/source_signature_02.jpg" alt="source_signature_02" height="100">
+    <img src="./docs/source_signature_02.jpg" alt="source_signature_02" height="400">
 </div>
 
 通过全局搜索在 js 文件中找到与 signature 相关的代码，可以看出是通过 HMAC 算法，利用加入特定字段生成的
