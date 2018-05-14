@@ -56,7 +56,7 @@ Chrome - Developer Tools [Command + Option + I]<br/>
 
 
 
-## 基本信息
+## 模拟登陆
 
 <div align="center">
     <img src="./docs/xhr_login.jpg" alt="xhr_login" height="400">
@@ -70,6 +70,7 @@ Chrome - Developer Tools [Command + Option + I]<br/>
 请求方式 `POST`
 
 
+### Headers
 
 <div align="center">
     <img src="./docs/xhr_login_headers.jpg" alt="xhr_login_headers" height="400">
@@ -81,6 +82,7 @@ Chrome - Developer Tools [Command + Option + I]<br/>
 - `x-xsrftoken` 是防 Xsrf 跨站的 Token 认证，通过查找发现该字段在第一次请求网页后，会通过 `set-cookie` 的方式通过 `_xsrf` 字段储存在 `cookies` 中
 
 
+### Payload
 
 <div align="center">
     <img src="./docs/xhr_login_payload.jpg" alt="xhr_login_payload" height="800">
@@ -99,12 +101,12 @@ Chrome - Developer Tools [Command + Option + I]<br/>
 - `ref_source` 固定字段
 
 
-## 签名
+### Signature
 
 <div align="center">
     <img src="./docs/source_signature_01.jpg" alt="source_signature_01" height="400">
 </div>
-
+<br/>
 <div align="center">
     <img src="./docs/source_signature_02.jpg" alt="source_signature_02" height="400">
 </div>
@@ -137,7 +139,7 @@ def build_signature(timestamp):
 ```
 
 
-## 验证码
+### 验证码
 
 
 
