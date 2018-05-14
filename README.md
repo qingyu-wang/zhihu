@@ -55,6 +55,92 @@ Chrome - Developer Tools [Command + Option + I]<br/>
 > 勾选 "Preserve log" 防止跳转丢失信息
 
 
+
+## 基本信息
+
+<div align="center">
+    <img src="./docs/xhr_login.jpg" alt="xhr_login" height="100">
+</div>
+
+> 勾选 "XHR (XMLHttpRequest)" 查看请求相关的信息
+> 模拟登陆一次，选择 "sign_in" 的文件进行查看
+
+在 Headers 的信息中可以得到
+请求网页 `https://www.zhihu.com/api/v3/oauth/sign_in`
+请求方式 `POST`
+
+
+
+<div align="center">
+    <img src="./docs/xhr_login_headers.jpg" alt="xhr_login_headers" height="100">
+</div>
+
+在 Headers -> Request Header 的项目里可以看到 `POST` 需要提供的 `headers`
+通过测试发现 `authorization` 和 `X-Xsrftoken` 这两个是必需的
+- `authorization` 是一个固定值
+- `x-xsrftoken` 是防 Xsrf 跨站的 Token 认证，通过查找发现该字段在第一次请求网页后，会通过 `set-cookie` 的方式通过 `_xsrf` 字段储存在 `cookies` 中
+
+
+
+<div align="center">
+    <img src="./docs/xhr_login_payload.jpg" alt="xhr_login_payload" height="100">
+</div>
+
+在 Headers -> Request Header 的项目里可以看到 `POST` 需要提供的 `payload`
+- `client_id` 固定字段
+- `grant_type` 固定字段
+- `timestamp` 时间戳，这里是13位整数，毫秒级别，Python 生成的整数部分只有10位，需要再乘上1000
+- `source` 固定字段
+- `signature` 比较复杂，后面详述
+- `username` 账号，明文（手机号前面加 `+86` ）
+- `password` 密码，明文
+- `captcha` 验证码，根据是否需要键入而定，没有就为空，后面详述
+- `lang` 系统语言，也决定验证码的输入方式
+- `ref_source` 固定字段
+
+
+## 签名
+
+<div align="center">
+    <img src="./docs/source_signature_01.jpg" alt="source_signature_01" height="100">
+</div>
+
+<div align="center">
+    <img src="./docs/source_signature_02.jpg" alt="source_signature_02" height="100">
+</div>
+
+通过全局搜索在 js 文件中找到与 signature 相关的代码，可以看出是通过 HMAC 算法，利用加入特定字段生成的
+
+```python
+import hmac
+import hashlib
+
+def build_signature(timestamp):
+    """Build Signature
+    [Info]
+        利用 Hmac 算法计算返回签名
+    [Argument]
+        timestamp: 时间戳，毫秒，字符串
+    [Return]
+        signature: 签名
+    """
+    grant_type = 'password'
+    client_id = 'c3cef7c66a1843f8b3a9e6a1e3160e20'
+    source = 'com.zhihu.web'
+
+    key = 'd1b964811afb40118a12068ff74a12f4'
+    msg = grant_type + client_id + source + timestamp
+
+    signature = hmac.new(key=key, msg=msg, digestmod=hashlib.sha1).hexdigest()
+
+    return signature
+```
+
+
+## 验证码
+
+
+
 <!-- 
 ## 分析 POST 请求
 首先打开控制台正常登录一次，可以很快找到登录的 API 接口，这个就是模拟登录 POST 的链接。
